@@ -1,0 +1,10 @@
+[
+
+    { "country": "Belgium",        "city": "Spa-Francorchamps", "gp": "Belgian Grand Prix",               "race": "2025-12-12T11:00:00Z", "round": 13, "identifier": "R" },
+    { "country": "Belgium",        "city": "Spa-Francorchamps", "gp": "Belgian Grand Prix",               "race": "2025-12-12T10:00:00Z", "round": 13, "identifier": "S" },
+
+    { "country": "Qatar",          "city": "Lusail",            "gp": "Qatar Grand Prix",                 "race": "2025-12-11T11:10:00Z", "round": 23, "identifier": "R" },
+    { "country": "Qatar",          "city": "Lusail",            "gp": "Qatar Grand Prix",                 "race": "2025-12-11T12:00:00Z", "round": 23, "identifier": "S" },
+
+    { "country": "UAE",            "city": "Abu Dhabi",         "gp": "Abu Dhabi Grand Prix",             "race": "2025-12-07T14:00:00Z", "round": 24, "identifier": "R" }
+]

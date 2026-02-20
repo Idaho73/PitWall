@@ -1,0 +1,14 @@
+httpx
+fastapi
+uvicorn[standard]
+fastf1
+pandas
+numpy
+matplotlib
+python-multipart
+psycopg2-binary
+sqlalchemy
+passlib
+pydantic[email]
+python-jose[cryptography]
+pathlib

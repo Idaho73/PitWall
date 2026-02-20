@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: f1_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: f1app
+      POSTGRES_USER: f1user
+      POSTGRES_PASSWORD: f1pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./postgres/driver_standings.sql:/docker-entrypoint-initdb.d/driver_standings.sql:ro
+      - ./postgres/predictions.sql:/docker-entrypoint-initdb.d/predictions.sql:ro
+      - ./postgres/prediction_leaderboard.sql:/docker-entrypoint-initdb.d/prediction_leaderboard.sql:ro
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    container_name: f1_backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://f1user:f1pass@db:5432/f1app
+      FASTF1_CACHE_DIR: /app/.fastf1
+    ports:
+      - "8000:8000"
+    volumes:
+      - fastf1_cache:/app/.fastf1
+      - ./backend/logs:/app/logs
+
+  frontend:
+    build: ./frontend
+    container_name: f1_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:3000"   # host:container
+    environment:
+      # Inside docker network, backend is reachable via http://backend:8000
+      NEXT_PUBLIC_BACKEND_BASE_URL: http://backend:8000
+      # optional if you bind dev server
+      HOSTNAME: 0.0.0.0
+
+
+volumes:
+  db_data:
+  fastf1_cache:

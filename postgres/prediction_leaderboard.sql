@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS prediction_leaderboard (
+	id SERIAL PRIMARY KEY,
+	year INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+	username VARCHAR(50) NOT NULL,
+	points INTEGER NOT NULL,
+	last_updated TIMESTAMP DEFAULT NOW()
+);

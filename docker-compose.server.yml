@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: f1_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: f1app
+      POSTGRES_USER: f1user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./postgres/driver_standings.sql:/docker-entrypoint-initdb.d/driver_standings.sql:ro
+      - ./postgres/predictions.sql:/docker-entrypoint-initdb.d/predictions.sql:ro
+      - ./postgres/prediction_leaderboard.sql:/docker-entrypoint-initdb.d/prediction_leaderboard.sql:ro
+    networks:
+      - internal
+
+  backend:
+    build: ./backend
+    container_name: f1_backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://f1user:${POSTGRES_PASSWORD:-change_me}@db:5432/f1app
+      FASTF1_CACHE_DIR: /app/.fastf1
+    volumes:
+      - fastf1_cache:/app/.fastf1
+      - ./backend/logs:/app/logs
+    ports:
+      - "8000:8000"   # most még oké LAN/Tailscale-hoz
+    networks:
+      - internal
+      - edge
+
+  frontend:
+    build: ./frontend
+    container_name: f1_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:4173"   # ezt majd igazítjuk, ha kell
+    networks:
+      - edge
+
+networks:
+  internal:
+    internal: true
+  edge:
+
+volumes:
+  db_data:
+  fastf1_cache:

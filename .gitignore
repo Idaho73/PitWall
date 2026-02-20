@@ -1,0 +1,92 @@
+# ==============================================
+# 🏎️ F1 App - Full Stack Project .gitignore
+# Backend (FastAPI) + Frontend (React) + Docker
+# ==============================================
+
+# ---- Python / FastAPI ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.env
+.venv/
+venv/
+env/
+instance/
+*.log
+logs/
+__pycache__/
+
+# FastF1 cache
+.fastf1/
+cache/
+tmp/
+
+# ---- Node / React ----
+node_modules/
+dist/
+build/
+.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Docker ----
+*.pid
+*.seed
+*.bak
+*.swp
+*.orig
+*.tmp
+docker-compose.override.yml
+# Avoid committing volumes
+volumes/
+db_data/
+fastf1_cache/
+
+# ---- System files ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# ---- Compiled assets ----
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# ---- Coverage / Testing ----
+.coverage
+htmlcov/
+.tox/
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+.cache/
+
+# ---- Frontend env ----
+frontend/.env
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+
+node_modules
+.next
+dist
+out
+.env*
+
+# ---- Backend env ----
+backend/.env
+
+# ---- Misc ----
+*.bak
+*.tmp
+*.swp
