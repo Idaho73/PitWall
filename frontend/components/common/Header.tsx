@@ -10,7 +10,7 @@ type HeaderProps = {
 
 export default function Header({
   onMenuClick,
-  profileName = "First you have to finish ~ Michael Schumacher",
+  profileName = "\"First you have to finish\" ~ Michael Schumacher",
 }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 w-full h-16 z-50 f1-glass">

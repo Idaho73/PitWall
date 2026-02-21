@@ -17,7 +17,6 @@ async def lap_comparison(
 ):
     try:
         data = get_lap_comparison(season, grand_prix, session_code, driver1, driver2)
-        Logger.info(f"lap comparison: {data}")
         return JSONResponse(content=data)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
