@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from utils.logger import logger
 from time import time
-from routers import lap, users, race, position_changes, leaderboard, prediction
+from routers import lap, users, race, position_changes, leaderboard, prediction, drivers
 
 app = FastAPI()
 
@@ -37,3 +37,4 @@ app.include_router(race.router)
 app.include_router(position_changes.router)
 app.include_router(leaderboard.router)
 app.include_router(prediction.router)
+app.include_router(drivers.router)

@@ -27,9 +27,15 @@ export default function MyPredictionsCard({ className = "" }: Props) {
     setError("");
 
     try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        throw new Error("Nem vagy bejelentkezve.");
+      }
+
       const res = await fetch("/api/predictions/me", {
         method: "GET",
-        credentials: "include",
+        headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
 

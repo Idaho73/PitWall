@@ -63,6 +63,12 @@ export default function SubmitPredictionCard({
     setSuccessMsg("");
 
     try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        throw new Error("Nem vagy bejelentkezve.");
+      }
+
       const body = {
         year,
         round,
@@ -72,14 +78,24 @@ export default function SubmitPredictionCard({
 
       const res = await fetch("/api/predictions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(body),
       });
 
       if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(txt || `Submit failed: ${res.status}`);
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 401) {
+          localStorage.removeItem("access_token");
+          window.dispatchEvent(new Event("auth-changed"));
+        }
+
+        throw new Error(
+          data?.detail ?? data?.message ?? `Submit failed: ${res.status}`
+        );
       }
 
       setP1("");
@@ -88,7 +104,7 @@ export default function SubmitPredictionCard({
       toast.success("Prediction submitted successfully!");
     } catch (e: any) {
       setErrorMsg(e?.message ?? "Something went wrong.");
-          toast.error("Failed to submit prediction");
+      toast.error("Failed to submit prediction");
     } finally {
       setSubmitting(false);
     }

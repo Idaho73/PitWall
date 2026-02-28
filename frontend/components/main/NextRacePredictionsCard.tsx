@@ -40,38 +40,56 @@ export default function NextRacePredictionsCard({ maxHeightPx = 310 }: Props) {
   const [user, setUser] = useState<{ username: string } | null>(null);
   const pathname = usePathname();
 
-  // 🔐 auth check (HttpOnly cookie -> /api/auth/me)
   useEffect(() => {
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => setUser(data.user ?? null))
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    fetch("/api/users/me", {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    })
+      .then((r) => {
+        if (!r.ok) {
+          localStorage.removeItem("access_token");
+          setUser(null);
+          return null;
+        }
+        return r.json();
+      })
+      .then((data) => {
+        if (data) setUser(data);
+      })
       .catch(() => setUser(null));
   }, [pathname]);
 
-  // 📦 load predictions (lehet public vagy protected, UX lock ettől független)
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError("");
+  const load = async () => {
+    setLoading(true);
+    setError("");
 
-      try {
-        const res = await fetch("/api/predictions/next-race");
-        if (!res.ok) {
-          setError(`Backend error: ${res.status}`);
-          return;
-        }
-
-        const data: PredictionRow[] = await res.json();
-        setRows(data);
-      } catch {
-        setError("Connection error");
-      } finally {
-        setLoading(false);
+    try {
+      const res = await fetch("/api/predictions/next-race");
+      if (!res.ok) {
+        setError(`Backend error: ${res.status}`);
+        return;
       }
-    };
 
-    load();
-  }, []);
+      const data = await res.json();
+      const rows = Array.isArray(data) ? (data as PredictionRow[]) : [];
+      setRows(rows);
+    } catch {
+      setError("Connection error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  load();
+}, []);
 
   const sorted = useMemo(() => {
     return [...rows].sort((a, b) =>

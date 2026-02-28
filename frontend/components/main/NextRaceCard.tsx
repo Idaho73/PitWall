@@ -40,8 +40,7 @@ export default function NextRaceCard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/next-race");
-        if (!res.ok) {
+          const res = await fetch("/api/race/next-race", { cache: "no-store" });        if (!res.ok) {
           setError(`Backend error: ${res.status}`);
           return;
         }

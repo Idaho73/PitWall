@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { DRIVERS } from "@/public/drivers";
 import { GP_ROUNDS } from "@/public/gpRounds";
 import LapComparisonChartCard, { LapComparisonResponse } from "./LapComparisonCard";
+import { api } from "@/lib/api/client";
 
 type SessionCode = "FP1" | "FP2" | "FP3" | "Q" | "S" | "R";
 
@@ -61,25 +62,25 @@ export default function LapComparisonQueryCard({
     setErrorMsg("");
 
     try {
-      const params = new URLSearchParams({
-        season: String(season),
-        grand_prix: grandPrix,
-        session_code: sessionCode,
-        driver1,
-        driver2,
+      const { data, response } = await api.GET("/api/lap-comparison", {
+        params: {
+          query: {
+            season,
+            grand_prix: grandPrix,
+            session_code: sessionCode,
+            driver1,
+            driver2,
+          },
+        },
       });
 
-      const res = await fetch(`/api/lap-comparison?${params.toString()}`, {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(txt || `Lap comparison failed (${res.status})`);
+      if (!response.ok) {
+        throw new Error(`Lap comparison failed (${response.status})`);
       }
 
-      const json = (await res.json()) as LapComparisonResponse;
+      // spec-ben a response schema üres {}, ezért guard kell
+      const json = data as LapComparisonResponse;
+
       setData(json);
       toast.success("Lap comparison loaded!");
     } catch (e: any) {

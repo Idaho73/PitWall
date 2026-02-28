@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api/client";
 import { useEffect, useMemo, useState } from "react";
 
 type LeaderboardRow = {
@@ -12,7 +13,7 @@ type Props = {
   maxHeightPx?: number;
 };
 
-export default function LeaderboardCard({ year, maxHeightPx = 310 }: Props) {
+export default function LeaderboardTeamCard({ year, maxHeightPx = 310 }: Props) {
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -23,14 +24,17 @@ export default function LeaderboardCard({ year, maxHeightPx = 310 }: Props) {
       setError("");
 
       try {
-        const res = await fetch(`/api/leaderboard/team/${year}`);
-        if (!res.ok) {
-          setError(`Backend error: ${res.status}`);
+        const { data, response } = await api.GET("/api/leaderboard/team/{year}", {
+          params: { path: { year } },
+        });
+
+        if (!response.ok || !data) {
+          setError(`Backend error: ${response.status}`);
           return;
         }
 
-        const data: LeaderboardRow[] = await res.json();
-        setRows(data);
+        const rows = Array.isArray(data) ? (data as LeaderboardRow[]) : [];
+        setRows(rows);
       } catch {
         setError("Connection error");
       } finally {

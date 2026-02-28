@@ -1,53 +1,102 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { clearToken, getToken } from "@/lib/auth";
 
 type SidebarProps = {
   open: boolean;
   onClose: () => void;
 };
 
-type MeResponse = {
-  user: { username: string; email?: string } | null;
+type UserOut = {
+  id: number;
+  username: string;
+  email: string;
 };
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
-  const [user, setUser] = useState<MeResponse["user"]>(null);
+  const [user, setUser] = useState<UserOut | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
   const pathname = usePathname();
   const router = useRouter();
 
-  // minden route váltáskor frissítjük, hogy login után azonnal megjelenjen
+  async function loadMe() {
+    const token = getToken();
+    if (!token) {
+      setUser(null);
+      setAuthChecked(true);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        // token invalid/expired -> takarítsuk
+        clearToken();
+        setUser(null);
+        setAuthChecked(true);
+        return;
+      }
+
+      const data = (await res.json()) as UserOut;
+      setUser(data);
+      setAuthChecked(true);
+    } catch {
+      // hálózati hiba esetén ne törölj tokent, csak ne mutass usert
+      setUser(null);
+      setAuthChecked(true);
+    }
+  }
+
+  // route váltáskor frissítés (ahogy nálad volt)
   useEffect(() => {
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data: MeResponse) => setUser(data.user ?? null))
-      .catch(() => setUser(null));
+    loadMe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  // login/logout eventre is frissítsünk azonnal
+  useEffect(() => {
+    const onAuthChanged = () => loadMe();
+    window.addEventListener("auth-changed", onAuthChanged);
+    window.addEventListener("storage", onAuthChanged);
+    return () => {
+      window.removeEventListener("auth-changed", onAuthChanged);
+      window.removeEventListener("storage", onAuthChanged);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    clearToken();         // nincs backend logout endpoint
     setUser(null);
     onClose();
     router.push("/");
-    router.refresh(); // biztos ami biztos
+    router.refresh();
     toast.success("Sikeres kijelentkezés");
   }
 
-  const menuItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
+  const menuItems = useMemo(() => {
+    return [
+      { name: "Home", href: "/" },
+      { name: "About", href: "/about" },
 
-    // 🔒 csak belépve
-    ...(user ? [{ name: "Predictions", href: "/predictions" }] : []),
-    {name: "Lap Comparison", href: "/lapComparison" },
-  ];
+      ...(user ? [{ name: "Predictions", href: "/predictions" }] : []),
+
+      { name: "Lap Comparison", href: "/lapComparison" },
+      { name: "Drivers", href: "/drivers" },
+    ];
+  }, [user]);
 
   return (
     <>
-      {/* Overlay mobilra */}
       {open && (
         <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={onClose} />
       )}
@@ -61,7 +110,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           md:translate-x-0
         `}
       >
-        {/* Header rész a sidebar tetején */}
         <div className="mb-3 pb-3 border-b f1-divider">
           {!user ? (
             <Link
@@ -81,11 +129,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 <div className="text-sm font-semibold truncate" style={{ color: "var(--text-0)" }}>
                   {user.username}
                 </div>
-                {user.email ? (
-                  <div className="text-xs truncate" style={{ color: "var(--text-2)" }}>
-                    {user.email}
-                  </div>
-                ) : null}
+                <div className="text-xs truncate" style={{ color: "var(--text-2)" }}>
+                  {user.email}
+                </div>
               </div>
 
               <button
@@ -100,9 +146,15 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               </button>
             </div>
           )}
+
+          {/* opcionális: ha zavar a “villanás”, amíg nem ellenőriztük */}
+          {!authChecked ? (
+            <div className="mt-2 text-xs" style={{ color: "var(--text-2)" }}>
+              Ellenőrzés...
+            </div>
+          ) : null}
         </div>
 
-        {/* Menü */}
         <nav className="flex flex-col gap-2">
           {menuItems.map((item) => (
             <Link

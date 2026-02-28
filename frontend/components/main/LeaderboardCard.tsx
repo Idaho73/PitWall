@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api/client";
 import { useEffect, useMemo, useState } from "react";
 
 type LeaderboardRow = {
@@ -25,17 +26,20 @@ export default function LeaderboardCard({ year, maxHeightPx = 310 }: Props) {
       setError("");
 
       try {
-        const res = await fetch(`/api/leaderboard/${year}`);
-        if (!res.ok) {
-          setError(`Backend error: ${res.status}`);
-          setLoading(false);
+        const { data, response } = await api.GET("/api/leaderboard/{year}", {
+          params: {
+            path: { year },
+          },
+        });
+
+        if (!response.ok || !data) {
+          setError(`Backend error: ${response.status}`);
           return;
         }
 
-        const data: LeaderboardRow[] = await res.json();
-        // kis rendezés biztonságból
-        data.sort((a, b) => a.position - b.position);
-        setRows(data);
+        // a backend már position szerint adja, de biztos ami biztos
+        const sorted = [...data].sort((a, b) => a.position - b.position);
+        setRows(sorted);
       } catch {
         setError("Connection error");
       } finally {

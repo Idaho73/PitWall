@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { api } from "@/lib/api/client"; // ha nincs alias, akkor relatív import
+import { setToken } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,30 +12,43 @@ export default function LoginPage() {
   const [error, setError] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    const fd = new FormData(e.currentTarget);
+  const fd = new FormData(e.currentTarget);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      body: fd,
-    });
+  const { data, response } = await api.POST("/api/users/login", {
+      body: {
+    username: String(fd.get("username") ?? ""),
+    password: String(fd.get("password") ?? ""),
+    scope: "",
+    grant_type: "password",
+  },
+  });
 
-    setLoading(false);
+  setLoading(false);
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data?.error ?? "Sikertelen bejelentkezés.");
-      toast.error("Hibás felhasználónév vagy jelszó");
-      return;
-    }
-    toast.success("Sikeres bejelentkezés");
-    router.refresh();
-    router.push("/");
-
+  if (!response.ok) {
+    setError("Sikertelen bejelentkezés.");
+    toast.error("Hibás felhasználónév vagy jelszó");
+    return;
   }
+
+  // Token schema:
+  // { access_token: string, token_type: string }
+  const token = data?.access_token;
+
+  if (token) {
+    setToken(data.access_token);
+    localStorage.setItem("access_token", token);
+    window.dispatchEvent(new Event("auth-changed"));
+  }
+
+  toast.success("Sikeres bejelentkezés");
+  router.refresh();
+  router.push("/");
+}
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4">
@@ -58,13 +73,7 @@ export default function LoginPage() {
             <label className="text-sm font-medium" style={{ color: "var(--text-1)" }} htmlFor="username">
               Felhasználónév
             </label>
-            <input
-              id="username"
-              name="username"
-              className="f1-input"
-              autoComplete="username"
-              required
-            />
+            <input id="username" name="username" className="f1-input" autoComplete="username" required />
           </div>
 
           <div className="grid gap-2">
@@ -93,19 +102,11 @@ export default function LoginPage() {
           </button>
 
           <div className="flex items-center justify-between text-sm">
-            <a
-              href="/register"
-              className="underline underline-offset-4"
-              style={{ color: "var(--text-1)" }}
-            >
+            <a href="/register" className="underline underline-offset-4" style={{ color: "var(--text-1)" }}>
               Nincs fiókod? Regisztráció
             </a>
 
-            <a
-              href="/"
-              className="underline underline-offset-4"
-              style={{ color: "var(--text-2)" }}
-            >
+            <a href="/" className="underline underline-offset-4" style={{ color: "var(--text-2)" }}>
               Vissza
             </a>
           </div>

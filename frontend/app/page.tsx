@@ -42,7 +42,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-2">
       {/* Leaderboard column */}
       <div className="flex flex-col gap-6">
         {/* Header */}
@@ -61,24 +61,10 @@ export default function Home() {
             />
           </div>
         </div>
-
-        {/* Card */}
         <PredictionLeaderboardCard year={predYear} />
       </div>
-
-      {/* Üres / más widgetek helye */}
       <div>
       <NextRacePredictionsCard />
-      </div>
-      <div>
-        <Image
-          src="https://cdn.cms.mtv.hu/wp-content/uploads/sites/10/2026/01/XPB_1126223_HiRes-620x413.jpg"
-          alt="Logo"
-          width={400}
-          height={200}
-          priority
-          className="rounded-lg opacity-90"
-        />
       </div>
     </div>
      
