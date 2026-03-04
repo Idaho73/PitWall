@@ -77,15 +77,15 @@ The script will:
 
 Delete the old backend log file
 
-  Stop running containers
+  -Stop running containers
   
-  Rebuild Docker images
+  -Rebuild Docker images
   
-  Start the containers
+  -Start the containers
   
-  Display the running containers
+  -Display the running containers
   
-  This provides a quick one-command startup for development.
+This provides a quick one-command startup for development.
 
 👩‍💻 Author
 
@@ -93,10 +93,10 @@ Gergő Réti
 
 Software developer interested in:
   
-  Data analysis
+  -Data analysis
   
-  Interactive visualization
+  -Interactive visualization
   
-  Motorsport analytics
+  -Motorsport analytics
   
-  Backend systems
+  -Backend systems
