@@ -100,3 +100,7 @@ Software developer interested in:
   - Motorsport analytics
   
   - Backend systems
+
+📄 License
+
+This project is for educational and portfolio purposes.
