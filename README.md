@@ -1,4 +1,4 @@
-# 🏎️ F1 Analytics App
+# 🏎️ PitWall: F1 Analytics App
 
 A full-stack Formula 1 analytics web application for exploring drivers, comparing lap performances, and analyzing race telemetry.
 
