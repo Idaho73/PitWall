@@ -60,11 +60,11 @@ Next.js frontend
 
 Access the application
 Service	URL
-  Frontend	http://localhost:3000
+  - Frontend	http://localhost:3000
 
-  Backend API	http://localhost:8000
+  - Backend API	http://localhost:8000
 
-  API Documentation	http://localhost:8000/docs
+  - API Documentation	http://localhost:8000/docs
 
 ⚡ Quick Start (Windows)
 
@@ -77,13 +77,13 @@ The script will:
 
 Delete the old backend log file
 
-  -Stop running containers
+  - Stop running containers
   
-  -Rebuild Docker images
+  - Rebuild Docker images
   
-  -Start the containers
+  - Start the containers
   
-  -Display the running containers
+  - Display the running containers
   
 This provides a quick one-command startup for development.
 
@@ -93,10 +93,10 @@ Gergő Réti
 
 Software developer interested in:
   
-  -Data analysis
+  - Data analysis
   
-  -Interactive visualization
+  - Interactive visualization
   
-  -Motorsport analytics
+  - Motorsport analytics
   
-  -Backend systems
+  - Backend systems
